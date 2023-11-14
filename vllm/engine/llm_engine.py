@@ -262,7 +262,14 @@ class LLMEngine:
             arrival_time = time.monotonic()
         if prompt_token_ids is None:
             assert prompt is not None
-            prompt_token_ids = self.tokenizer.encode(prompt)
+            truncation_length = (
+                self.scheduler_config.max_model_len - sampling_params.max_tokens
+            )
+            prompt_token_ids = self.tokenizer.encode(
+                prompt,
+                truncation=True,
+                max_length=truncation_length
+            )
 
         # Create the sequences.
         block_size = self.cache_config.block_size
