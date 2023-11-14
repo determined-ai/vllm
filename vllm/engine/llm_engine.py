@@ -311,11 +311,16 @@ class LLMEngine:
                              f"{max_logprobs} logprobs.")
         if arrival_time is None:
             arrival_time = time.time()
-        prompt_token_ids = self.encode_request(
-            request_id=request_id,
-            prompt=prompt,
-            prompt_token_ids=prompt_token_ids,
-            lora_request=lora_request)
+        if prompt_token_ids is None:
+            assert prompt is not None
+            truncation_length = (
+                self.scheduler_config.max_model_len - sampling_params.max_tokens
+            )
+            prompt_token_ids = self.tokenizer.encode(
+                prompt,
+                truncation=True,
+                max_length=truncation_length
+            )
 
         # Create the sequences.
         block_size = self.cache_config.block_size

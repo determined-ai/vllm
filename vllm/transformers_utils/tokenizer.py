@@ -72,6 +72,8 @@ def get_tokenizer(
             *args,
             trust_remote_code=trust_remote_code,
             tokenizer_revision=tokenizer_revision,
+            padding_side="left",
+            truncation_side="left",
             **kwargs)
     except ValueError as e:
         # If the error pertains to the tokenizer class not existing or not
