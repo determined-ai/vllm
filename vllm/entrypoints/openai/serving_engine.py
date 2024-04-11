@@ -171,8 +171,14 @@ class OpenAIServing:
             raise ValueError(
                 "Only one of prompt or prompt_ids should be provided.")
 
-        input_ids = prompt_ids if prompt_ids is not None else self.tokenizer(
-            prompt).input_ids
+        max_length = self.max_model_len - request.max_tokens
+        if prompt:
+            input_ids = self.tokenizer.encode(prompt, truncation=True, max_length=max_length)
+        elif len(prompt_ids) > max_length:
+            input_ids = prompt_ids[-max_length:]
+        else:
+            input_ids = prompt_ids
+
         token_num = len(input_ids)
 
         if request.max_tokens is None:
