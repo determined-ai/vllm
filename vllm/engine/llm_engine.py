@@ -307,16 +307,18 @@ class LLMEngine:
                              f"{max_logprobs} logprobs.")
         if arrival_time is None:
             arrival_time = time.time()
+        max_length = (
+                self.scheduler_config.max_model_len - sampling_params.max_tokens
+        )
         if prompt_token_ids is None:
             assert prompt is not None
-            truncation_length = (
-                self.scheduler_config.max_model_len - sampling_params.max_tokens
-            )
             prompt_token_ids = self.tokenizer.encode(
                 prompt,
                 truncation=True,
-                max_length=truncation_length
+                max_length=max_length
             )
+        elif len(prompt_token_ids) > max_length:
+            prompt_token_ids = prompt_token_ids[-max_length:]
 
         # Create the sequences.
         block_size = self.cache_config.block_size
